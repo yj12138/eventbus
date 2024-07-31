@@ -75,6 +75,12 @@ func (e *Event) safeCall(f any, args ...interface{}) {
 	}
 	fnValue.Call(in)
 }
+func (e *Event) Trigger() error {
+	for _, f := range e.eventCallBacks {
+		e.safeCall(f)
+	}
+	return nil
+}
 func (e *Event) TriggerOne(a any) error {
 	for _, f := range e.eventCallBacks {
 		e.safeCall(f, a)
