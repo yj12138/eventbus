@@ -67,9 +67,19 @@ func (e *Event) safeCall(f any, args ...interface{}) {
 	}
 	in := make([]reflect.Value, len(args))
 	for i, arg := range args {
+		inType := fnType.In(i)
 		argValue := reflect.ValueOf(arg)
-		if argValue.Type() != fnType.In(i) {
-			return
+		if !argValue.IsValid() {
+			panic("nil cannot as args")
+		}
+		if inType.Kind() == reflect.Interface {
+			if !argValue.Type().Implements(inType) {
+				panic(fmt.Sprintf("%v not implements %v", argValue.Elem(), inType.Elem()))
+			}
+		} else {
+			if argValue.Type() != fnType.In(i) {
+				panic(fmt.Sprintf("%v type not equal %v", argValue, inType))
+			}
 		}
 		in[i] = argValue
 	}
